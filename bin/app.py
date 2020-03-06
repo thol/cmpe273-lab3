@@ -11,6 +11,7 @@ type_defs = """
 
     type Class {
         name: String
+        students: [String]
     }
 
     type Query {
@@ -22,13 +23,15 @@ type_defs = """
     type Mutation {
         create_student(name: String!): Student
         create_class(name: String!): Class
+        add_students_to_class(name: String!, students: [String!]!): Class
     }
 """
+
 
 query = QueryType()
 mutation = MutationType()
 
-student = []
+student_dict = []
 class_dict = []
 
 @query.field("hello")
@@ -39,24 +42,48 @@ def resolve_hello(_, info):
 
 @query.field("query_student")
 def resolve_query_student(*_, id):
-    if len(student) > id:
-        return student[id]
-    return "Not found"
+    if len(student_dict) > id:
+        return student_dict[id]
 
 @mutation.field("create_student")
 def resolve_create_student(*_, name):
-    student.append({"name":name})
-    return student[-1]
+    for s in student_dict:
+        if s['name'] == name:
+            return s
+    student_dict.append({"name":name})
+    return student_dict[-1]
 
 @query.field("query_class")
 def resolve_query_class(*_, id):
     if len(class_dict) > id:
         return class_dict[id]
-    return "Not found"
 
 @mutation.field("create_class")
 def resolve_create_class(*_, name):
-    class_dict.append({"name":name})
+    for c in class_dict:
+        if c['name'] == name:
+            return c
+    class_dict.append({"name":name, "students" : []})
+    return class_dict[-1]
+
+def process_class_students(c, stu):
+    for s in stu:
+        for sd in student_dict:
+            if s == sd['name']:
+                continue
+        student_dict.append({"name":s})
+        c['students'].append(s)
+
+
+
+@mutation.field("add_students_to_class")
+def add_students_to_class(*_, name, students):
+    for c in class_dict:
+        if c['name'] == name:
+            process_class_students(c, students)
+            return c
+    class_dict.append({"name":name, "students" : []})
+    process_class_students(class_dict[-1], students)
     return class_dict[-1]
 
 schema = make_executable_schema(type_defs, query, mutation)
