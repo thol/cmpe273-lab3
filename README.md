@@ -1,6 +1,31 @@
-# cmpe273-lab3
-CMPE 273 lab3
+# Lab 3
 
-## Setting up Ariadne GraphQL Python Flask implementation
+### Domain Model
 
-### Queries/Mutations implemented.
+```
+|-------|               |---------|
+| Class |* ---------- * | Student |
+|-------|               |---------|
+```
+
+### GraphQL operations to be implemented.
+
+* Mutate a new student
+![](images/create_student.png)
+
+* Query an existing student
+![](images/query_student.png)
+
+* Mutate a class
+![](images/create_class.png)
+
+* Query a class
+![](images/query_class.png)
+
+* Add students to a class
+![](images/add_students_to_class1.png)
+Missing class and student names are automatically added.
+![](images/add_students_to_class2.png)
+
+
+
